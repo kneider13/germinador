@@ -102,15 +102,15 @@ void waterPump() {
     digitalWrite(D1, HIGH);
     pump_control = true;
     pump_time = millis();  // Registra el tiempo de inicio cuando se enciende la bomba
-    Serial.println("Water bomb on");
+    Serial.println("Water pump on");
   } else if (pump_control && millis() - pump_time >= 10000) {
     digitalWrite(D1, LOW);
     pump_control = false;
-    Serial.println("Water bomb off");
+    Serial.println("Water pump off");
   } else if (mapped_hum_value > 30 && pump_control) {
     digitalWrite(D1, LOW);
     pump_control = false;
-    Serial.println("Water bomb off (humidity > 30%)");
+    Serial.println("Water pump off (humidity > 30%)");
   }
 }
 */
