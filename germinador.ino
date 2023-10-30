@@ -14,7 +14,7 @@ MM.    `7MMF'8M""""""   MM       MM    MM    MM    MM    MM    MM   ,pm9MM  8MI 
 //#define BLYNK_DEBUG
 #define APP_DEBUG
 
-#define D5 14      // Lampara
+#define D5 14      // Lámpara
 #define D0 16      // Ventiladores
 #define D1 5       // Bomba de agua
 #define DHT11PIN 4 // DHT11 - D2
@@ -32,11 +32,11 @@ int timer_on, timer_off, server_time; // Variables para guardar horario y compar
 String timeRangeString = ""; // String para mostrar valor en blynk Label
 
 float dht_humidity, dht_temperature;
-bool fans_control, pump_control; // Boolean para comparar estados
+bool fans_control, pump_control; // Boolean para comparar estados e imprimir
 
 int analog_hum_value, mapped_hum_value;
 
-// Ajusta la obtencion de la hora a UTC-3 Uruguay
+// Ajusta la obtención de la hora a UTC-3 Uruguay
 const long utcOffsetInSeconds = -10800;
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "south-america.pool.ntp.org", utcOffsetInSeconds);
@@ -60,7 +60,7 @@ void loop() {
 
   BlynkEdgent.run();
   timeClient.update();
-  delay(dht.getMinimumSamplingPeriod()); // Periodo de actualizacion del DHT11
+  delay(dht.getMinimumSamplingPeriod()); // Periodo de actualización del DHT11
   getTimeServer();
   userInputTimer();
   fans();
@@ -70,10 +70,10 @@ void loop() {
   dht_temperature = dht.getTemperature();
   analog_hum_value = analogRead(A0);
 
-  // Mapeo del valor analogico del sensor de humedad a 0-100%
+  // Mapeo del valor analógico del sensor de humedad a 0-100%
   mapped_hum_value = map(analog_hum_value, 600, 1023, 100, 0);
 
-  // Envia los datos obtenidos a widgets (Blynk)
+  // Envía los datos obtenidos a los widgets de Blynk
   Blynk.virtualWrite(V1, mapped_hum_value);
   Blynk.virtualWrite(V0, dht_humidity);
   Blynk.virtualWrite(V4, dht_temperature);
@@ -92,6 +92,10 @@ void waterPump() {
     Serial.println("Water pump off");
   }
 }
+
+/////////////////
+// FOR TESTING //
+/////////////////
 /*
 void waterPump() {
 
@@ -143,10 +147,10 @@ void userInputTimer() {
 
   // Compara si los valores introducidos son iguales a los obtenidos del servidor 
   if (timer_on == server_time) {
-    digitalWrite(D5, HIGH); // Enciende la lampara
+    digitalWrite(D5, HIGH); // Enciende la lámpara
     Blynk.virtualWrite(V3, 1);
   } else if (timer_off == server_time) {
-    digitalWrite(D5, LOW);  // Apaga la lampara
+    digitalWrite(D5, LOW);  // Apaga la lámpara
     Blynk.virtualWrite(V3, 0);
   }
 }
@@ -177,7 +181,7 @@ void timerToString() {
 
   Serial.print("Timer on: ");
   Serial.println(timeRangeString);
-  Blynk.virtualWrite(V6, timeRangeString); // Envia la cadena de texto a widget V6 (Label)
+  Blynk.virtualWrite(V6, timeRangeString); // Envía la cadena de texto a widget V6 (Label)
 }
 
 // Maneja el cambio en el estado del widget V5 (Timer)
@@ -190,7 +194,7 @@ BLYNK_WRITE(V5) {
   timerToString();
 }
 
-// Maneja el cambio en el estado del widget V3 (Lampara)
+// Maneja el cambio en el estado del widget V3 (Lámpara)
 BLYNK_WRITE(V3) {
 
   switch_lamp_state = param.asInt(); // Lee el estado del switch
