@@ -65,6 +65,7 @@ void loop() {
   userInputTimer();
   fans();
   waterPump();
+  // lampControl();
 
   dht_humidity = dht.getHumidity();
   dht_temperature = dht.getTemperature();
@@ -143,9 +144,27 @@ void getTimeServer() {
   server_time = 3600*HH + 60*MM + SS;
 }
 
+/////////////////
+// FOR TESTING //
+/////////////////
+/*
+void lampControl() {
+
+  // Comprueba el estado del temporizador y el interruptor
+  if (timer_on == server_time || switch_lamp_state == 1) {
+    Serial.println("Light on");
+    digitalWrite(D5, HIGH); // Enciende la lámpara
+    Blynk.virtualWrite(V3, 1);
+  } else if (timer_off == server_time || switch_lamp_state == 0) {
+    Serial.println("Light off");
+    digitalWrite(D5, LOW); // Apaga la lámpara
+    Blynk.virtualWrite(V3, 0);
+  }
+}
+*/
 void userInputTimer() {
 
-  // Compara si los valores introducidos son iguales a los obtenidos del servidor 
+  // Compara si los valores introducidos son iguales a los obtenidos del servidor
   if (timer_on == server_time) {
     digitalWrite(D5, HIGH); // Enciende la lámpara
     Blynk.virtualWrite(V3, 1);
@@ -199,13 +218,7 @@ BLYNK_WRITE(V3) {
 
   switch_lamp_state = param.asInt(); // Lee el estado del switch
 
-  if (switch_lamp_state == 1) {
-    Serial.println("Light on");
-    digitalWrite(D5, HIGH);
-  } else {
-    Serial.println("Light off");
-    digitalWrite(D5, LOW);
-  }
+  lampControl();
 }
 
 // Maneja el cambio en el estado del widget V7 (Ventiladores)
