@@ -218,7 +218,17 @@ BLYNK_WRITE(V3) {
 
   switch_lamp_state = param.asInt(); // Lee el estado del switch
 
-  lampControl();
+  if (switch_lamp_state == 1) {
+    Serial.println("Light on");
+    digitalWrite(D5, HIGH);
+    timer_on = server_time; // Actualiza timer_on
+  } else {
+    Serial.println("Light off");
+    digitalWrite(D5, LOW);
+    timer_off = server_time; // Actualiza timer_off
+  }
+
+  //lampControl();
 }
 
 // Maneja el cambio en el estado del widget V7 (Ventiladores)
