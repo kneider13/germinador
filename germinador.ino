@@ -26,7 +26,7 @@ MM.    `7MMF'8M""""""   MM       MM    MM    MM    MM    MM    MM   ,pm9MM  8MI 
 
 DHTesp dht;
 
-int switch_lamp_state, switch_fans_state = 0;
+int switch_lamp_state, switch_fans_state;
 
 int timer_on, timer_off, server_time; // Variables para guardar horario y comparar en servidor
 String timeRangeString = ""; // String para mostrar valor en blynk Label
@@ -65,7 +65,6 @@ void loop() {
   userInputTimer();
   fans();
   waterPump();
-  // lampControl();
 
   dht_humidity = dht.getHumidity();
   dht_temperature = dht.getTemperature();
@@ -144,24 +143,6 @@ void getTimeServer() {
   server_time = 3600*HH + 60*MM + SS;
 }
 
-/////////////////
-// FOR TESTING //
-/////////////////
-/*
-void lampControl() {
-
-  // Comprueba el estado del temporizador y el interruptor
-  if (timer_on == server_time || switch_lamp_state == 1) {
-    Serial.println("Light on");
-    digitalWrite(D5, HIGH); // Enciende la lámpara
-    Blynk.virtualWrite(V3, 1);
-  } else if (timer_off == server_time || switch_lamp_state == 0) {
-    Serial.println("Light off");
-    digitalWrite(D5, LOW); // Apaga la lámpara
-    Blynk.virtualWrite(V3, 0);
-  }
-}
-*/
 void userInputTimer() {
 
   // Compara si los valores introducidos son iguales a los obtenidos del servidor
@@ -216,19 +197,17 @@ BLYNK_WRITE(V5) {
 // Maneja el cambio en el estado del widget V3 (Lámpara)
 BLYNK_WRITE(V3) {
 
+  userInputTimer();
   switch_lamp_state = param.asInt(); // Lee el estado del switch
 
   if (switch_lamp_state == 1) {
     Serial.println("Light on");
     digitalWrite(D5, HIGH);
-    timer_on = server_time; // Actualiza timer_on
   } else {
     Serial.println("Light off");
     digitalWrite(D5, LOW);
-    timer_off = server_time; // Actualiza timer_off
   }
 
-  //lampControl();
 }
 
 // Maneja el cambio en el estado del widget V7 (Ventiladores)
