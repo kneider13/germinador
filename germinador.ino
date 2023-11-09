@@ -34,7 +34,7 @@ String timeRangeString = ""; // String para mostrar valor en blynk Label
 float dht_humidity, dht_temperature;
 bool fans_control, pump_control; // Boolean para comparar estados e imprimir
 
-int analog_hum_value, mapped_hum_value;
+int analog_hum_value, soil_humidity;
 
 // Ajusta la obtención de la hora a UTC-3 Uruguay
 const long utcOffsetInSeconds = -10800;
@@ -63,7 +63,7 @@ void loop() {
   delay(dht.getMinimumSamplingPeriod()); // Periodo de actualización del DHT11
   getTimeServer();
   userInputTimer();
-  fans();
+  fansControl();
   waterPump();
 
   dht_humidity = dht.getHumidity();
@@ -71,10 +71,10 @@ void loop() {
   analog_hum_value = analogRead(A0);
 
   // Mapeo del valor analógico del sensor de humedad a 0-100%
-  mapped_hum_value = map(analog_hum_value, 600, 1023, 100, 0);
+  soil_humidity = map(analog_hum_value, 600, 1023, 100, 0);
 
   // Envía los datos obtenidos a los widgets de Blynk
-  Blynk.virtualWrite(V1, mapped_hum_value);
+  Blynk.virtualWrite(V1, soil_humidity);
   Blynk.virtualWrite(V0, dht_humidity);
   Blynk.virtualWrite(V4, dht_temperature);
 }
@@ -82,43 +82,18 @@ void loop() {
 void waterPump() {
 
   // Verifica la humedad del suelo y activa la bomba de agua si es necesario
-  if (mapped_hum_value <= 10 && !pump_control) {
+  if (soil_humidity <= 10 && !pump_control) {
     digitalWrite(D1, HIGH);
     pump_control = true;
     Serial.println("Water pump on");
-  } else if (mapped_hum_value >= 30 && pump_control) {
+  } else if (soil_humidity >= 30 && pump_control) {
     digitalWrite(D1, LOW);
     pump_control = false;
     Serial.println("Water pump off");
   }
 }
 
-/////////////////
-// FOR TESTING //
-/////////////////
-/*
-void waterPump() {
-
-  unsigned long pump_time = 0; // Variable local para comparar los segundos de riego
-
-  // Verifica la humedad del suelo y activa la bomba de agua si es necesario
-  if (mapped_hum_value < 10 && !pump_control) {
-    digitalWrite(D1, HIGH);
-    pump_control = true;
-    pump_time = millis();  // Registra el tiempo de inicio cuando se enciende la bomba
-    Serial.println("Water pump on");
-  } else if (pump_control && millis() - pump_time >= 10000) {
-    digitalWrite(D1, LOW);
-    pump_control = false;
-    Serial.println("Water pump off");
-  } else if (mapped_hum_value > 30 && pump_control) {
-    digitalWrite(D1, LOW);
-    pump_control = false;
-    Serial.println("Water pump off (humidity > 30%)");
-  }
-}
-*/
-void fans() {
+void fansControl() {
 
   // Verifica la temperatura del sensor DHT11 y activa los ventiladores
   if (dht_temperature >= 25 && !fans_control) {
